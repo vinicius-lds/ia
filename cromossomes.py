@@ -1,50 +1,28 @@
-from random import sample
 from math import sqrt
-from collections import OrderedDict
-from math import inf
+import numpy as np
+import random
 
 
-def start_cromossomes(population : int = 20, cities : list = []) -> list:
-    cromossomes = []
-    for x in range(population):
-        cromossome = sample(range(len(cities)), len(cities))
-        cromossome.append(cromossome[0])
-        cromossomes.append(cromossome)
-    return cromossomes
+def generate_cromossomes(limit : int = 20) -> np:
+    return np.array([random.sample(range(1, limit + 1), limit) for line in range(limit)])
 
-def fitness_function(cromossomes : list = [], cities : list = []) -> list:
-    _fitness_matrix = []
-    for cromossome in cromossomes:
-        _fitness_matrix.append([_calculate_fitness(cromossome, cities)])
-    return _fitness_matrix
-        
-def _calculate_fitness(cromossome : list = [], cities : list = []) -> int:
-    total = 0
-    for x in range(len(cromossome) - 2):
-        current_city = cities[cromossome[x]]
-        next_city = cities[cromossome[x + 1]]
+def generate_cost(limit : int = 20) -> list:
+    return [(random.choice([0, 1]), random.choice([0, 1])) for i in range(limit)]
 
-        total += _calculate_distance(current_city, next_city)
+def final_column(cromossomes : np) -> np:
+    return np.concatenate((cromossomes, np.array(cromossomes[:,[0]])), axis = 1)
 
-    return total
+def fitness_function(cromossomes : np, cost : list = []) -> np:
+    return np.array([[ _calculate_fitness(cromossome, cost) ] for cromossome in cromossomes])
 
-def _calculate_distance(city_one : tuple = (0, 0), city_two : tuple = (0, 0)) -> int:
+def _calculate_fitness(cromossome : np, cost : list) -> int:
+    return sum([_calculate_distance(cost[cromossome[x] - 1], cost[cromossome[x + 1] - 1]) for x in range(len(cromossome) - 2)])
+
+def _calculate_distance(current_cost_cromossome : tuple = (0, 0), next_cost_cromossome : tuple = (0, 0)) -> int:    
+    return sqrt(((next_cost_cromossome[0] - current_cost_cromossome[0]) ** 2) + ((next_cost_cromossome[1] - current_cost_cromossome[1]) ** 2))
+
+def sort_cromossomes(fitness : np) -> np:
+    a = np.array(np.sort(fitness, axis=0)) #cost
+    b = np.array(np.argsort(fitness, axis=0)) #index
     
-    xi = city_one[0]
-    yi = city_one[1]
-    
-    xj = city_two[0]
-    yj = city_two[1]
-    
-    return sqrt(((xj - xi) ** 2) + ((yj - yi) ** 2))
-        
-def sort_cromossomes(cromossomes : list = [], fitness_matrix : list = []) -> list:
-    ordered = False
-    while not ordered:
-        ordered = True
-        for i in range(len(cromossomes) - 1):
-            if fitness_matrix[i][0] > fitness_matrix[i + 1][0]:
-                fitness_matrix[i][0], fitness_matrix[i + 1][0] = fitness_matrix[i + 1][0], fitness_matrix[i][0]
-                cromossomes[i], cromossomes[i + 1] = cromossomes[i + 1], cromossomes[i]
-                ordered = False
-    return cromossomes
+    return np.concatenate([a, b], axis=1)

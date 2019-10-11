@@ -1,23 +1,14 @@
-from cities import generate_cities
-from cromossomes import start_cromossomes, fitness_function, sort_cromossomes
+from cromossomes import generate_cromossomes, generate_cost, final_column, fitness_function, sort_cromossomes
 
 
-max_iterations = 10_000
-current_iteration = 0
+MAX_ITERATIONS = 10_000
 
-cities = generate_cities()
-cromossomes = start_cromossomes(population=20, cities=cities)
+if __name__ == "__main__":
+    _cromossomes = generate_cromossomes() #20x20
+    _cost_cromossomes = generate_cost() #1x20
+    _aux_cromossomes = final_column(_cromossomes) #20x21
 
-while current_iteration < max_iterations:
-    print(f'Current iteration: {current_iteration}')
-    fitness_matrix = fitness_function(cromossomes, cities)
-    cromosomes = sort_cromossomes(cromossomes, fitness_matrix)
-    
-    current_iteration += 1
-
-    
-print(cities)
-
-for cromossome in cromossomes:
-    print(cromossome)
-
+    for current_iteration in range(MAX_ITERATIONS):
+        print(f'Current iteration: {current_iteration}')
+        fitness_results = fitness_function(_aux_cromossomes, _cost_cromossomes)
+        sorted_fitness_results = sort_cromossomes(fitness_results)
