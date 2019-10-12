@@ -135,7 +135,6 @@ if __name__ == "__main__":
     MAX_ITERATIONS = 100
     # MAX_ITERATIONS = 10
     POPULATION = 20
-    INIT = True
     ITERATIONS = list()
 
     _cromossomes = generate_cromossomes(POPULATION) #20x20
@@ -148,11 +147,7 @@ if __name__ == "__main__":
 
         _aux_cromossomes = final_column(_cromossomes) #20x21
         fitness_results = fitness_function(_aux_cromossomes, _cost_cromossomes)
-        sorted_fitness_results = sort_cromossomes(fitness_results)
-
-        if INIT:
-            sorted_fitness_results = get_first_10(sorted_fitness_results)
-            INIT = False
+        sorted_fitness_results = get_first_10(sort_cromossomes(fitness_results))
 
         _percentage = pick_couples(sorted_fitness_results)
         
