@@ -164,4 +164,4 @@ if __name__ == "__main__":
         _cromossomes = toNumpy(get_lest_10(_cromossomes, _children))
 
     
-    print(ITERATIONS[95:])
+    print(ITERATIONS[-1])
