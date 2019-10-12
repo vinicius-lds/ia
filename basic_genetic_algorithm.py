@@ -132,7 +132,7 @@ def toNumpy(matrix) -> np:
     return np.array(matrix)
 
 if __name__ == "__main__":
-    MAX_ITERATIONS = 100
+    MAX_ITERATIONS = 10_000
     # MAX_ITERATIONS = 10
     POPULATION = 20
     ITERATIONS = list()
