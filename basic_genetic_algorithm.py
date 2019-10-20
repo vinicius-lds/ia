@@ -1,9 +1,15 @@
 from math import sqrt
 from collections import Counter
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 
-# Artificial Intelligence Work 2
+MAX_ITERATIONS = 100
+MUTATION_RATE = 0
+POPULATION = 20
+
+
+# Artificial Intelligence Assignment 2
 # Developed by Carlos Henrique Ponciano da Silva and Vinicius Luis da Silva
 
 # Genetic algorithm developed using numpy library where values ​​are random for mere fictional tests
@@ -50,7 +56,7 @@ def get_first_10(matrix):
     return matrix[:10]
 
 # return only the lest ten elements of the matrix
-def get_lest_10(old_matrix, current_matrix) -> list:
+def get_last_10(old_matrix, current_matrix) -> list:
     _half = int(len(old_matrix) / 2)
     
     for i in range(_half, len(old_matrix)):
@@ -76,7 +82,7 @@ def pick_couples(fitness_matrix_sorted : np) -> list:
     roulette = list()
 
     for i in range(len(fitness_matrix_sorted)):
-        roulette += [fitness_matrix_sorted[i][1]] * int(_percentages[i] * 10_000)
+        roulette += [fitness_matrix_sorted[i][1]] * int(_percentages[i])
 
     _out = list()
 
@@ -109,6 +115,21 @@ def _crossover_cycle(son : np, daughter : np, location : int = 0, son_recombinat
 
     return (np.array(son), np.array(daughter))
 
+def mutation(cromossomes : np) -> np:
+    global MUTATION_RATE
+    for cromossome in cromossomes:
+        number = random.randint(0, 100)
+        if number < 5:
+            MUTATION_RATE += 1
+            cromossome = _mutate(cromossome)
+
+    return cromossomes
+
+def _mutate(cromossome : np) -> np:
+    idx_result = random.sample(range(len(cromossome)), 2)
+    cromossome[idx_result[0]], cromossome[idx_result[1]] = cromossome[idx_result[1]], cromossome[idx_result[0]]
+    return cromossome
+
 # check for duplicate values
 def _duplicate_value_index(cromossomes : np, cromossome : int = 0, recombination : list = []) -> int:
     _equals = None
@@ -131,19 +152,43 @@ def _duplicate_value_index(cromossomes : np, cromossome : int = 0, recombination
 def toNumpy(matrix) -> np:
     return np.array(matrix)
 
-if __name__ == "__main__":
-    MAX_ITERATIONS = 10_000
-    # MAX_ITERATIONS = 10
-    POPULATION = 20
-    ITERATIONS = list()
+def decimal_format(value : float) -> float:
+    return '{0:.3g}'.format(value)
 
+def calc_mutation_rate() -> float:
+    global MUTATION_RATE
+    MUTATION_RATE /= (MAX_ITERATIONS * POPULATION)
+    MUTATION_RATE *= 100
+    return decimal_format(MUTATION_RATE)
+
+def display_plot(cost : list = [], best_solution : list = []):
+    _x = list()
+    _y = list()
+    for position in cost:
+        _x.append(position[0] * 20)
+        _y.append(position[1] * 20)
+
+    plt.plot(_x, _y, 'ro')
+
+    _best_path_x = list()
+    _best_path_y = list()
+    for position in best_solution:
+        _best_path_x.append(cost[position - 1][0] * 20)
+        _best_path_y.append(cost[position - 1][1] * 20)
+
+    _best_path_x.append(cost[0][0] * 20)
+    _best_path_y.append(cost[0][1] * 20)
+
+    plt.plot(_best_path_x, _best_path_y)
+
+    plt.show()
+
+if __name__ == "__main__":
     _cromossomes = generate_cromossomes(POPULATION) #20x20
     _cost_cromossomes = generate_cost(POPULATION) #1x20
 
-
     for current_iteration in range(MAX_ITERATIONS):
         print(f'Current iteration: {current_iteration}')
-        ITERATIONS.append(_cromossomes)
 
         _aux_cromossomes = final_column(_cromossomes) #20x21
         fitness_results = fitness_function(_aux_cromossomes, _cost_cromossomes)
@@ -161,7 +206,19 @@ if __name__ == "__main__":
             _children.append(list(_crossover[0]))
             _children.append(list(_crossover[1]))
 
-        _cromossomes = toNumpy(get_lest_10(_cromossomes, _children))
+        _cromossomes = toNumpy(get_last_10(_cromossomes, _children))
+        _cromossomes = mutation(_cromossomes)
 
     
-    print(ITERATIONS[-1])
+    fitness_results = fitness_function(final_column(_cromossomes), _cost_cromossomes)
+    sorted_fitness_results = get_first_10(sort_cromossomes(fitness_results))
+    
+    # OUTPUT
+    print(f'POPULATION SIZE: {POPULATION}')
+    print(f'MUTATION RATE: {calc_mutation_rate()}%')
+    print(f'NUMBER CITY: 20')
+    print(f'BEST COST: {decimal_format(sorted_fitness_results[0][0])}')
+    print(f'BEST SOLUTION: {_cromossomes[int(sorted_fitness_results[0][1])]}')
+
+    #PLOT
+    display_plot(_cost_cromossomes, _cromossomes[int(sorted_fitness_results[0][1])])
