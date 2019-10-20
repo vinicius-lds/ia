@@ -176,8 +176,8 @@ def display_plot(cost : list = [], best_solution : list = []):
         _best_path_x.append(cost[position - 1][0] * 20)
         _best_path_y.append(cost[position - 1][1] * 20)
 
-    _best_path_x.append(cost[0][0] * 20)
-    _best_path_y.append(cost[0][1] * 20)
+    _best_path_x.append(cost[best_solution[0] - 1][0] * 20)
+    _best_path_y.append(cost[best_solution[0] - 1][1] * 20)
 
     plt.plot(_best_path_x, _best_path_y)
 
